@@ -61,8 +61,8 @@ const convertDBObjToResObj = dbObject => {
   return {
     movieId: dbObject.movie_id,
     directorId: dbObject.director_id,
-    movieName: movie_name,
-    leadActor: lead_actor,
+    movieName: dbObject.movie_name,
+    leadActor: dbObject.lead_actor,
   }
 }
 app.get('/movies/:movieId/', async (req, res) => {
@@ -119,22 +119,17 @@ app.get('/directors/', async (req, res) => {
   )
 })
 
-const convertMovieNameToPascalCase = dbObject => {
-  return {
-    movieName: dbObject.movie_name,
-  }
-}
 //API 7
-app.get('/directors/:directorId/movies/', async (req, res) => {
-  const {directorId} = req.params
-  const getDirectorQuery = `SELECT movie_name,
+app.get("/directors/:directorId/movies/", async (req, res) => {
+  const { directorId } = req.params;
+  const getDirectorQuery = `SELECT movie_name
                             FROM 
-                            director INNER JOIN movie
-                            ON director.director_id = movie.director_id
+                            movie
                             WHERE 
-                            director.director_id = ${directorId};`
-  const movies = await db.all(getDirectorQuery)
-  res.send(movies.map(movienames => convertMovieNameToPascalCase(movienames)))
-})
-
+                            director_id = '${directorId}';`;
+  const movies = await db.all(getDirectorQuery);
+  res.send(
+    moviesArray.map((eachMovie) => ({ movieName: eachMovie.movie_name }))
+  );
+});
 module.exports = app
